@@ -108,17 +108,14 @@ simpleCommand:
    stem = rxqueue("Create")
    call rxqueue "Set",stem
    interpret "'"command" | rxqueue' "stem
-      /* log output */
    drop sal.; j = 0; sal = ''
    do queued()
       pull sal
-      j=j+1
-      sal.j = sal
+      j=j+1; sal.j = sal
    end
    sal.0 = j
    call rxqueue "Delete", stem
-   call writeToFile dir
-   /* pull data */
+   call writeToFile dir   /* log output */
    if expectedOutputs <> '' then call verifyOutput expectedOutputs
 return
 
