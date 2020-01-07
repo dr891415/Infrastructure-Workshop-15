@@ -309,6 +309,12 @@ upload:
    task = 'upload' ; call display_end task
 return
 
+reset:
+   task = 'reset' ; call display_init task
+   call reject; call restore; call stop; call copy; call start; call apf
+   task = 'reset' ; call display_end task
+return
+
 start:
    task = 'start' ; call display_init task
    call start1; call start2
