@@ -274,6 +274,11 @@ restore:
    task = 'restore' ; call display_end task
 return
 
+setupProfiles:
+   task = 'setupProfiles' ; call display_init task
+   task = 'setupProfiles' ; call display_end task
+return
+
 start1:
    task = 'start1' ; call display_init task
    call changeResourceState ssmResource1,"UP"
