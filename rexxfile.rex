@@ -127,13 +127,6 @@ createAndSetProfiles:
    call submitMultipleSimpleCommands commands 
 return
 
-submitMultipleSimpleCommands:
-   parse arg commands
-   do i=1 to commands.length
-      call simpleCommand commands.i.command, commands.i.dir
-   end
-return
-
 simpleCommand:
    parse arg command,dir,expectedOutputs
    stem = rxqueue("Create")
@@ -198,6 +191,13 @@ submitJobAndDownloadOutput:
          say sal.i
       end
       call exit 8
+   end
+return
+
+submitMultipleSimpleCommands:
+   parse arg commands
+   do i=1 to commands.length
+      call simpleCommand commands.i.command, commands.i.dir
    end
 return
 
