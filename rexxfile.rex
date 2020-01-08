@@ -103,6 +103,37 @@ changeResourceState:
    end
 return
 
+createAndSetProfiles:
+   parse arg host,user,pass
+   commands.length=6
+   commands.1.command="zowe profiles create zosmf bmw --host "||host||" --user "||user||" --pass "||pass||,
+                      " --port "||zosmfPort||" --ru "||zosmfRejectUnauthorized||" --ow"
+   commands.1.dir="command-archive/create-zosmf-profile"
+   commands.2.command="zowe profiles set zosmf bmw"
+   commands.2.dir="command-archive/set-zosmf-profile"
+   commands.3.command="zowe profiles create fmp bmw --host "||host||" --user "||user||" --pass "||pass||,
+                      " --port "||fmpPort||" --ru "||fmpRejectUnauthorized||,
+                      " --protocol "||fmpProtocol||" --ow"
+   commands.3.dir="command-archive/create-fmp-profile"
+   commands.4.command="zowe profiles set fmp bmw"
+   commands.4.dir="command-archive/set-fmp-profile"
+   commands.5.command="zowe profiles create ops bmw --host "||host||" --user "||user||" --pass "||pass||,
+                      " --port "||opsPort||" --ru "||opsRejectUnauthorized||,
+                      " --protocol "||opsProtocol||" --ow"
+   commands.5.dir="command-archive/create-ops-profile"
+   commands.6.command="zowe profiles set ops bmw"
+   commands.6.dir="command-archive/set-ops-profile"
+
+   call submitMultipleSimpleCommands commands 
+return
+
+submitMultipleSimpleCommands:
+   parse arg commands
+   do i=1 to commands.length
+      call simpleCommand commands.i.command, commands.i.dir
+   end
+return
+
 simpleCommand:
    parse arg command,dir,expectedOutputs
    stem = rxqueue("Create")
@@ -117,6 +148,7 @@ simpleCommand:
    call rxqueue "Delete", stem
    call writeToFile dir   /* log output */
    if expectedOutputs <> '' then call verifyOutput expectedOutputs
+   drop command dir
 return
 
 /**
@@ -276,6 +308,13 @@ return
 
 setupProfiles:
    task = 'setupProfiles' ; call display_init task
+   say 'Host name or IP address: '
+   pull host
+   say 'Username: '
+   pull user
+   say 'Password: '
+   pull pass
+   call createAndSetProfiles host, user, pass
    task = 'setupProfiles' ; call display_end task
 return
 
