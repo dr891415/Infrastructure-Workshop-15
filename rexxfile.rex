@@ -425,6 +425,7 @@ help:
    say '  help          Display this help text.'
    say '  receive       Receive Maintenance'
    say '  reject        Reject Maintenance'
+   say '  reset         Reset maintenance level'
    say '  restore       Restore Maintenance'
    say '  setupProfiles Create project profiles and set them as default'
    say '  start         Start SSM managed resources'
