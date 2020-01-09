@@ -12,7 +12,7 @@ pipeline {
                 sh 'zowe --version'
                 sh 'zowe plugins list'
                 sh 'npm install gulp-cli -g'
-                //insert this line
+                //This line inserted
                 sh 'rexx -version'
                 sh 'npm install'
 
@@ -24,81 +24,75 @@ pipeline {
         stage('Download Maintenance') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'rexx rexxfile download'
+                    sh 'echo download'
                 }
             }
         }
         stage('Upload Maintenance') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'rexx rexxfile upload'
+                    sh 'echo upload'
                 }
             }
         }
         stage('Receive') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'rexx rexxfile receive'
+                    sh 'echo receive'
                 }
-                archiveArtifacts artifacts: 'job-archive/**/*.*'
             }
         }
         stage('Apply-Check') {
             input {
-                message "Review the results of the receive job in the job-archive/receive artifacts. Proceed to Apply-Check?"
+                message "Proceed to Apply-Check?"
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'rexx rexxfile apply_check'
+                    sh 'echo apply_check'
                 }
-                archiveArtifacts artifacts: 'job-archive/**/*.*'
             }
         }
         stage('Apply') {
             input {
-                message "Review the results of the apply-check job in the job-archive/apply-check artifacts. Proceed to Apply?"
+                message "Proceed to Apply?"
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'rexx rexxfile apply'
+                    sh 'echo apply'
                 }
-                archiveArtifacts artifacts: 'job-archive/**/*.*'
             }
         }
         stage('Deploy') {
             input {
-                message "Review the results of the apply job in the job-archive/apply artifacts. Proceed to Deploy?"
+                message "Proceed to Deploy?"
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
                     //To deploy the maintenace, an OPS profile needs to be created since profile options are not exposed on the command line
                     sh 'zowe profiles create ops Jenkins --host $ZOWE_OPT_HOST --port 6007 --protocol http --user $ZOWE_OPT_USER --password $ZOWE_OPT_PASSWORD'
-                    sh 'rexx rexxfile stop'
-                    sh 'rexx rexxfile copy'
-                    sh 'rexx rexxfile start'
-                    sh 'rexx rexxfile apf'
+                    sh 'echo deploy'
                 }
             }
         }
         stage('Test') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'eosCreds', usernameVariable: 'ZOWE_OPT_USER', passwordVariable: 'ZOWE_OPT_PASSWORD')]) {
-                    sh 'npm test'
+                    sh 'echo test'
                 }
             }
         }
     }
-    post {
-        always {
-            archiveArtifacts artifacts: '*-archive/**/*.*' 
-            publishHTML([allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'mochawesome-report',
-                reportFiles: 'mochawesome.html',
-                reportName: 'Test Results',
-                reportTitles: 'Test Report'
-                ])
-        }
-    } 
+    // post {
+    //     always {
+    //         archiveArtifacts artifacts: '*-archive/**/*.*' 
+    //         publishHTML([allowMissing: false,
+    //             alwaysLinkToLastBuild: true,
+    //             keepAll: true,
+    //             reportDir: 'mochawesome-report',
+    //             reportFiles: 'mochawesome.html',
+    //             reportName: 'Test Results',
+    //             reportTitles: 'Test Report'
+    //             ])
+    //     }
+    // } 
  }

@@ -288,22 +288,6 @@ gulp.task('apf', 'APF authorize dataset', function(callback){
     simpleCommand(command, "command-archive/apf", callback, output);
 });
 
-gulp.task('apply', 'Apply Maintenance', function (callback) {
-  var ds = config.remoteJclPds + '(' + config.applyMember + ')';
-  submitJobAndDownloadOutput(ds, "job-archive/apply", 0, callback);
-});
-
-gulp.task('apply-check', 'Apply Check Maintenance', function (callback) {
-  var ds = config.remoteJclPds + '(' + config.applyCheckMember + ')';
-  submitJobAndDownloadOutput(ds, "job-archive/apply-check", 0, callback);
-});
-
-gulp.task('copy', 'Copy Maintenance to Runtime', function (callback) {
-  var command = 'zowe file-master-plus copy data-set "' + config.smpeEnv + '.' + config.maintainedPds + 
-                '" "' + config.runtimeEnv + '.' + config.maintainedPds + '" --rfj';
-  simpleCommand(command, "command-archive/copy", callback);
-});
-
 gulp.task('download', 'Download Maintenance', function (callback) {
   var command = 'zowe files download uf "' + config.serverFolder + '/' + config.serverFile +
                 '" -f "' + config.localFolder + '/' + config.localFile + '" -b --rfj';

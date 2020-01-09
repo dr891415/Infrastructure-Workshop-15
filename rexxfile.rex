@@ -260,29 +260,6 @@ apf:
 
 return
 
-apply:
-   task = 'apply' ; call display_init task
-   ds = remoteJclPds ||'('|| applyMember ||')'
-   call submitJobAndDownloadOutput ds, "job-archive/apply", 0
-   task = 'apply' ; call display_end task
-return
-
-apply_check:
-   task = 'apply_check' ; call display_init task
-   ds = remoteJclPds ||'('|| applyCheckMember ||')'
-   call submitJobAndDownloadOutput ds, "job-archive/apply-check", 0
-   task = 'apply_check' ; call display_end task
-return
-
-copy:
-   task = 'copy' ; call display_init task
-   command = 'zowe file-master-plus copy data-set "' ,
-            || smpeEnv    ||'.' || maintainedPds || '" "' ,
-            || runtimeEnv ||'.' || maintainedPds || '" --rfj'
-   call simpleCommand command, "command-archive/copy"
-   task = 'copy' ; call display_end task
-return
-
 download:
    task = 'download' ; call display_init task
    command = 'zowe files download uf "' ,
@@ -417,9 +394,6 @@ help:
    say 'Available tasks'
    say '---------------'
    say '  apf           APF authorize dataset'
-   say '  apply         Apply Maintenance'
-   say '  apply_check   Apply Check Maintenance'
-   say '  copy          Copy Maintenance to Runtime'
    say '  download      Download Maintenance'
    say '  help          Display this help text.'
    say '  receive       Receive Maintenance'
