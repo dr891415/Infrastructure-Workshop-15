@@ -201,7 +201,6 @@ submitJobAndDownloadOutput:
 return
 
 submitMultipleSimpleCommands:
-   /* parse arg commands */
    do i=1 to command.0
       call simpleCommand command.i,dir.i
    end
