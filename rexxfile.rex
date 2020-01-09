@@ -105,26 +105,33 @@ return
 
 createAndSetProfiles:
    parse arg host,user,pass
-   commands.length=6
-   commands.1.command="zowe profiles create zosmf bmw --host "||host||" --user "||user||" --pass "||pass||,
+   drop command.
+   drop dir.
+   command.0=6
+   command.1 = "zowe profiles create zosmf bmw --host "||host||" --user "||user||" --pass "||pass|| ,
                       " --port "||zosmfPort||" --ru "||zosmfRejectUnauthorized||" --ow"
-   commands.1.dir="command-archive/create-zosmf-profile"
-   commands.2.command="zowe profiles set zosmf bmw"
-   commands.2.dir="command-archive/set-zosmf-profile"
-   commands.3.command="zowe profiles create fmp bmw --host "||host||" --user "||user||" --pass "||pass||,
-                      " --port "||fmpPort||" --ru "||fmpRejectUnauthorized||,
-                      " --protocol "||fmpProtocol||" --ow"
-   commands.3.dir="command-archive/create-fmp-profile"
-   commands.4.command="zowe profiles set fmp bmw"
-   commands.4.dir="command-archive/set-fmp-profile"
-   commands.5.command="zowe profiles create ops bmw --host "||host||" --user "||user||" --pass "||pass||,
-                      " --port "||opsPort||" --ru "||opsRejectUnauthorized||,
-                      " --protocol "||opsProtocol||" --ow"
-   commands.5.dir="command-archive/create-ops-profile"
-   commands.6.command="zowe profiles set ops bmw"
-   commands.6.dir="command-archive/set-ops-profile"
+   dir.1     = "command-archive/create-zosmf-profile"
+   
+   command.2 = "zowe profiles set zosmf bmw"
+   dir.2     = "command-archive/set-zosmf-profile"
 
-   call submitMultipleSimpleCommands commands 
+   command.3 = "zowe profiles create fmp bmw --host "||host||" --user "||user||" --pass "||pass|| ,
+                      " --port "||fmpPort||" --ru "||fmpRejectUnauthorized|| ,
+                      " --protocol "||fmpProtocol||" --ow"
+   dir.3     = "command-archive/create-fmp-profile"
+
+   command.4 = "zowe profiles set fmp bmw"
+   dir.4     = "command-archive/set-fmp-profile"
+
+   command.5 = "zowe profiles create ops bmw --host "||host||" --user "||user||" --pass "||pass|| ,
+                      " --port "||opsPort||" --ru "||opsRejectUnauthorized|| ,
+                      " --protocol "||opsProtocol||" --ow"
+   dir.5     = "command-archive/create-ops-profile"
+
+   command.6 = "zowe profiles set ops bmw"
+   dir.6     = "command-archive/set-ops-profile"
+
+   call submitMultipleSimpleCommands 
 return
 
 simpleCommand:
@@ -141,7 +148,6 @@ simpleCommand:
    call rxqueue "Delete", stem
    call writeToFile dir   /* log output */
    if expectedOutputs <> '' then call verifyOutput expectedOutputs
-   drop command dir
 return
 
 /**
@@ -195,9 +201,9 @@ submitJobAndDownloadOutput:
 return
 
 submitMultipleSimpleCommands:
-   parse arg commands
-   do i=1 to commands.length
-      call simpleCommand commands.i.command, commands.i.dir
+   /* parse arg commands */
+   do i=1 to command.0
+      call simpleCommand command.i,dir.i
    end
 return
 
@@ -231,6 +237,8 @@ return
 * content content to write
 */
 writeToFile:
+   if SysIsFileDirectory('command-archive') = 0 then call SysMkDir('command-archive')   
+   if SysIsFileDirectory('job-archive') = 0 then call SysMkDir('job-archive')   
    if SysIsFileDirectory(dir) = 0 then call SysMkDir(dir)   /* Creates Directory if doesn't exist */
    filename = substr(.dateTime~new,1,23)||'Z.txt'           /* Timestamp + Z.txt                  */
    filename = changestr(':',filename,'-')                   /* Replace ':' for '-' to avoid error */
@@ -309,11 +317,11 @@ return
 setupProfiles:
    task = 'setupProfiles' ; call display_init task
    say 'Host name or IP address: '
-   pull host
+   parse caseless pull host
    say 'Username: '
-   pull user
+   parse caseless pull user
    say 'Password: '
-   pull pass
+   parse caseless pull pass
    call createAndSetProfiles host, user, pass
    task = 'setupProfiles' ; call display_end task
 return
@@ -409,22 +417,23 @@ help:
    say ''
    say 'Available tasks'
    say '---------------'
-   say '  apf          APF authorize dataset'
-   say '  apply        Apply Maintenance'
-   say '  apply_check  Apply Check Maintenance'
-   say '  copy         Copy Maintenance to Runtime'
-   say '  download     Download Maintenance'
-   say '  help         Display this help text.'
-   say '  receive      Receive Maintenance'
-   say '  reject       Reject Maintenance'
-   say '  restore      Restore Maintenance'
-   say '  start        Start SSM managed resources'
-   say '  start1       Start SSM managed resource1'
-   say '  start2       Start SSM managed resource2'
-   say '  stop         Stop SSM managed resources'
-   say '  stop1        Stop SSM managed resource1'
-   say '  stop2        Stop SSM managed resource2'
-   say '  upload       Upload Maintenance to USS'
+   say '  apf           APF authorize dataset'
+   say '  apply         Apply Maintenance'
+   say '  apply_check   Apply Check Maintenance'
+   say '  copy          Copy Maintenance to Runtime'
+   say '  download      Download Maintenance'
+   say '  help          Display this help text.'
+   say '  receive       Receive Maintenance'
+   say '  reject        Reject Maintenance'
+   say '  restore       Restore Maintenance'
+   say '  setupProfiles Create project profiles and set them as default'
+   say '  start         Start SSM managed resources'
+   say '  start1        Start SSM managed resource1'
+   say '  start2        Start SSM managed resource2'
+   say '  stop          Stop SSM managed resources'
+   say '  stop1         Stop SSM managed resource1'
+   say '  stop2         Stop SSM managed resource2'
+   say '  upload        Upload Maintenance to USS'
    say ''
    task = 'help' ; call display_end task
 return
