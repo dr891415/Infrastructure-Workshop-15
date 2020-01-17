@@ -10,11 +10,10 @@ pipeline {
                 sh 'node --version'
                 sh 'npm --version'
                 sh 'zowe --version'
-                sh 'zowe plugins list'
-                sh 'npm install gulp-cli -g'
-                sh 'npm install'
-
                 sh 'rexx -version'
+                sh 'zowe plugins list'
+                //sh 'npm install gulp-cli -g'
+                sh 'npm install'
 
                 //Create zosmf and fmp profiles, env vars will provide host, user, and password details
                 sh 'zowe profiles create zosmf Jenkins --port 443 --ru false --host dummy --user dummy --password dummy'
