@@ -103,37 +103,6 @@ changeResourceState:
    end
 return
 
-createAndSetProfiles:
-   parse arg host,user,pass
-   drop command.
-   drop dir.
-   command.0=6
-   command.1 = "zowe profiles create zosmf bmw --host "||host||" --user "||user||" --pass "||pass|| ,
-                      " --port "||zosmfPort||" --ru "||zosmfRejectUnauthorized||" --ow"
-   dir.1     = "command-archive/create-zosmf-profile"
-   
-   command.2 = "zowe profiles set zosmf bmw"
-   dir.2     = "command-archive/set-zosmf-profile"
-
-   command.3 = "zowe profiles create fmp bmw --host "||host||" --user "||user||" --pass "||pass|| ,
-                      " --port "||fmpPort||" --ru "||fmpRejectUnauthorized|| ,
-                      " --protocol "||fmpProtocol||" --ow"
-   dir.3     = "command-archive/create-fmp-profile"
-
-   command.4 = "zowe profiles set fmp bmw"
-   dir.4     = "command-archive/set-fmp-profile"
-
-   command.5 = "zowe profiles create ops bmw --host "||host||" --user "||user||" --pass "||pass|| ,
-                      " --port "||opsPort||" --ru "||opsRejectUnauthorized|| ,
-                      " --protocol "||opsProtocol||" --ow"
-   dir.5     = "command-archive/create-ops-profile"
-
-   command.6 = "zowe profiles set ops bmw"
-   dir.6     = "command-archive/set-ops-profile"
-
-   call submitMultipleSimpleCommands 
-return
-
 simpleCommand:
    parse arg command,dir,expectedOutputs
    stem = rxqueue("Create")
@@ -200,12 +169,6 @@ submitJobAndDownloadOutput:
    end
 return
 
-submitMultipleSimpleCommands:
-   do i=1 to command.0
-      call simpleCommand command.i,dir.i
-   end
-return
-
 /**
 * Verifies Output from command and returns without error if successful
 * data            command to run
@@ -237,7 +200,7 @@ return
 */
 writeToFile:
    if SysIsFileDirectory('command-archive') = 0 then call SysMkDir('command-archive')   
-   if SysIsFileDirectory('job-archive') = 0 then call SysMkDir('job-archive')   
+   if SysIsFileDirectory('job-archive') = 0 then call SysMkDir('job-archive')  
    if SysIsFileDirectory(dir) = 0 then call SysMkDir(dir)   /* Creates Directory if doesn't exist */
    filename = substr(.dateTime~new,1,23)||'Z.txt'           /* Timestamp + Z.txt                  */
    filename = changestr(':',filename,'-')                   /* Replace ':' for '-' to avoid error */
@@ -258,6 +221,29 @@ apf:
    call simpleCommand command,"command-archive/apf",output
    task = 'apf' ; call display_end task
 
+return
+
+apply:
+   task = 'apply' ; call display_init task
+   ds = remoteJclPds ||'('|| applyMember ||')'
+   call submitJobAndDownloadOutput ds, "job-archive/apply", 0
+   task = 'apply' ; call display_end task
+return
+
+apply_check:
+   task = 'apply_check' ; call display_init task
+   ds = remoteJclPds ||'('|| applyCheckMember ||')'
+   call submitJobAndDownloadOutput ds, "job-archive/apply-check", 0
+   task = 'apply_check' ; call display_end task
+return
+
+copy:
+   task = 'copy' ; call display_init task
+   command = 'zowe file-master-plus copy data-set "' ,
+            || smpeEnv    ||'.' || maintainedPds || '" "' ,
+            || runtimeEnv ||'.' || maintainedPds || '" --rfj'
+   call simpleCommand command, "command-archive/copy"
+   task = 'copy' ; call display_end task
 return
 
 download:
@@ -288,18 +274,6 @@ restore:
    ds = remoteJclPds ||'('|| restoreMember ||')'
    call submitJobAndDownloadOutput ds, "job-archive/restore", 0
    task = 'restore' ; call display_end task
-return
-
-setupProfiles:
-   task = 'setupProfiles' ; call display_init task
-   say 'Host name or IP address: '
-   parse caseless pull host
-   say 'Username: '
-   parse caseless pull user
-   say 'Password: '
-   parse caseless pull pass
-   call createAndSetProfiles host, user, pass
-   task = 'setupProfiles' ; call display_end task
 return
 
 start1:
@@ -335,12 +309,6 @@ upload:
                || remoteFile ||'" -b --rfj'
    call simpleCommand command, "command-archive/upload"
    task = 'upload' ; call display_end task
-return
-
-reset:
-   task = 'reset' ; call display_init task
-   call reject; call restore; call stop; call copy; call start; call apf
-   task = 'reset' ; call display_end task
 return
 
 start:
@@ -393,21 +361,22 @@ help:
    say ''
    say 'Available tasks'
    say '---------------'
-   say '  apf           APF authorize dataset'
-   say '  download      Download Maintenance'
-   say '  help          Display this help text.'
-   say '  receive       Receive Maintenance'
-   say '  reject        Reject Maintenance'
-   say '  reset         Reset maintenance level'
-   say '  restore       Restore Maintenance'
-   say '  setupProfiles Create project profiles and set them as default'
-   say '  start         Start SSM managed resources'
-   say '  start1        Start SSM managed resource1'
-   say '  start2        Start SSM managed resource2'
-   say '  stop          Stop SSM managed resources'
-   say '  stop1         Stop SSM managed resource1'
-   say '  stop2         Stop SSM managed resource2'
-   say '  upload        Upload Maintenance to USS'
+   say '  apf          APF authorize dataset'
+   say '  apply        Apply Maintenance'
+   say '  apply_check  Apply Check Maintenance'
+   say '  copy         Copy Maintenance to Runtime'
+   say '  download     Download Maintenance'
+   say '  help         Display this help text.'
+   say '  receive      Receive Maintenance'
+   say '  reject       Reject Maintenance'
+   say '  restore      Restore Maintenance'
+   say '  start        Start SSM managed resources'
+   say '  start1       Start SSM managed resource1'
+   say '  start2       Start SSM managed resource2'
+   say '  stop         Stop SSM managed resources'
+   say '  stop1        Stop SSM managed resource1'
+   say '  stop2        Stop SSM managed resource2'
+   say '  upload       Upload Maintenance to USS'
    say ''
    task = 'help' ; call display_end task
 return
