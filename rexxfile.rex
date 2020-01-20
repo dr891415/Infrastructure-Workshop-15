@@ -455,7 +455,6 @@ help:
    say 'Available tasks'
    say '---------------'
    say '  apf             APF authorize dataset'
-   say '  apply           Apply Maintenance'
    say '  apply_check     Apply Check Maintenance'
    say '  copy            Copy Maintenance to Runtime'
    say '  download        Download Maintenance'
@@ -472,7 +471,6 @@ help:
    say '  stop            Stop SSM managed resources'
    say '  stop1           Stop SSM managed resource1'
    say '  stop2           Stop SSM managed resource2'
-   say '  upload          Upload Maintenance to USS'
    say ''
    task = 'help' ; call display_end task
 return
