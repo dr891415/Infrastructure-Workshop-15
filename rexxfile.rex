@@ -140,9 +140,9 @@ return
 */
 parseHolddata:
    parse arg filepath
-   remainingHolds = false
-   restart        = false
-   reviewDoc      = false
+   remainingHolds = "false"
+   restart        = "false"
+   reviewDoc      = "false"
 
    holds = "++HOLD ("||expectedFixLevel||")"
    file=.stream~new(filepath)  /* Create a stream object for the file */
@@ -151,9 +151,9 @@ parseHolddata:
       if pos(holds,text)<>0 then do
          text=file~linein
          select 
-            when pos("REASON (DOC    )",text)<>0 then reviewDoc = true
-            when pos("REASON (RESTART)",text)<>0 then restart   = true
-            otherwise remainingHolds = true
+            when pos("REASON (DOC    )",text)<>0 then reviewDoc = "true"
+            when pos("REASON (RESTART)",text)<>0 then restart   = "true"
+            otherwise remainingHolds = "true"
          end /* select */
       end /* if */
    end /* do while */
@@ -222,6 +222,8 @@ submitJobAndDownloadOutput:
    dir = "command-archive/job-submission"
    call writeToDir dir  
 
+   retcode = ''
+   jobid = ''
    do i = 1 to sal.0
       v1 = ''
       v2 = ''
