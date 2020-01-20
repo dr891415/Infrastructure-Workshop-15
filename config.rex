@@ -1,5 +1,5 @@
 /* rexx */
-config:
+config: 
    queue 'applyMember             = "APPLY"'
    queue 'applyCheckMember        = "APPLYCHK"'
    queue 'checkVersionMember      = "CHECKVE"'
@@ -30,5 +30,5 @@ config:
    queue 'ssmResource1            = "GSV1001V"'
    queue 'ssmResource2            = "GSV1001U"'
    queue 'zosmfPort               = 443'
-   queue 'zosmfRejectUnauthorized = false'
+   queue 'zosmfRejectUnauthorized = "false"'
 return
