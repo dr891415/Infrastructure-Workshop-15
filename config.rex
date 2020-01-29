@@ -1,5 +1,5 @@
 /* rexx */
-config: 
+config:
    queue 'applyMember             = "APPLY"'
    queue 'applyCheckMember        = "APPLYCHK"'
    queue 'checkVersionMember      = "CHECKVE"'
@@ -26,7 +26,7 @@ config:
    queue 'runtimeEnv              = "PRODUCT.SVRUN15.MSTRBRS"'
    queue 'serverFile              = "SO07038"'
    queue 'serverFolder            = "/u/users/baumi07"'
-   queue 'smpeEnv                 = "PRODUCT.SYSV15.SMPE$15"'
+   queue 'smpeEnv                 = "PRODUCT.SYSV15.SMPE15"'
    queue 'ssmResource1            = "GS15001V"'
    queue 'ssmResource2            = "GS15001U"'
    queue 'zosmfPort               = 443'

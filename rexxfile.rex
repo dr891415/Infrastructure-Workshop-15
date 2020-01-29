@@ -111,7 +111,7 @@ createAndSetProfiles:
    command.1 = "zowe profiles create zosmf bmw --host "||host||" --user "||user||" --pass "||pass|| ,
                       " --port "||zosmfPort||" --ru "||zosmfRejectUnauthorized||" --ow"
    dir.1     = "command-archive/create-zosmf-profile"
-   
+
    command.2 = "zowe profiles set zosmf bmw"
    dir.2     = "command-archive/set-zosmf-profile"
 
@@ -131,7 +131,7 @@ createAndSetProfiles:
    command.6 = "zowe profiles set ops bmw"
    dir.6     = "command-archive/set-ops-profile"
 
-   call submitMultipleSimpleCommands 
+   call submitMultipleSimpleCommands
 return
 
 /**
@@ -150,7 +150,7 @@ parseHolddata:
       text=file~linein         /* Read a line from the file           */
       if pos(holds,text)<>0 then do
          text=file~linein
-         select 
+         select
             when pos("REASON (DOC    )",text)<>0 then reviewDoc = "true"
             when pos("REASON (RESTART)",text)<>0 then restart   = "true"
             otherwise remainingHolds = "true"
@@ -166,7 +166,7 @@ parseHolddata:
    sal.4 = '  "reviewDoc": ' || reviewDoc
    sal.5 = '}'
    sal.0 = 5
-   
+
    call writeToFile 'holddata','actions.json'
 return
 
@@ -220,7 +220,7 @@ submitJobAndDownloadOutput:
    call rxqueue "Delete", stem
 
    dir = "command-archive/job-submission"
-   call writeToDir dir  
+   call writeToDir dir
 
    retcode = ''
    jobid = ''
@@ -228,9 +228,9 @@ submitJobAndDownloadOutput:
       v1 = ''
       v2 = ''
       parse upper var sal.i . '"RETCODE": "CC' v1 '"' .
-      if v1 <> '' then retcode = v1 
+      if v1 <> '' then retcode = v1
       parse upper var sal.i . '"JOBID": "' v2 '"' .
-      if v2 <> '' then jobid = v2 
+      if v2 <> '' then jobid = v2
       if retcode <> '' & jobid <> '' then leave
    end
 
@@ -286,8 +286,8 @@ return
 
 writeToFile:
    parse arg dir,filename
-   if SysIsFileDirectory('command-archive') = 0 then call SysMkDir('command-archive')   
-   if SysIsFileDirectory('job-archive') = 0 then call SysMkDir('job-archive')   
+   if SysIsFileDirectory('command-archive') = 0 then call SysMkDir('command-archive')
+   if SysIsFileDirectory('job-archive') = 0 then call SysMkDir('job-archive')
    if SysIsFileDirectory(dir) = 0 then call SysMkDir(dir)   /* Creates Directory if doesn't exist */
    filename = dir||'/'||filename                            /* Whole path route                   */
    logfile=.stream~new(filename)                            /* Create file                        */
@@ -315,6 +315,14 @@ apply_check:
    task = 'apply_check' ; call display_end task
 return
 
+apply:
+   task = 'apply' ; call display_init task
+   ds = remoteJclPds ||'('|| applyMember ||')'
+   call submitJobAndDownloadOutput ds, "job-archive/apply", 0
+   task = 'apply' ; call display_end task
+return
+
+
 copy:
    task = 'copy' ; call display_init task
    command = 'zowe file-master-plus copy data-set "' ,
@@ -332,6 +340,16 @@ download:
    call simpleCommand command, "command-archive/download"
    task = 'download' ; call display_end task
 return
+
+upload:
+   task = 'upload' ; call display_init task
+   command = 'zowe files upload ftu ' ,
+            '"'|| localFolder ||'/' || localfile || '"',
+            '"'|| remoteFolder  ||'/' || remoteFile  || '" -b --rfj'
+   call simpleCommand command, "command-archive/upload"
+   task = 'upload' ; call display_end task
+return
+
 
 receive:
    task = 'receive' ; call display_init task
@@ -352,7 +370,7 @@ restartWorkflow:
    task = 'restartWorkflow' ; call display_init task
    command = 'zowe zos-workflows start workflow-full --workflow-name ' ,
              || restartWorkflowName ||' --wait'
-   call simpleCommand command, "command-archive/start-workflow" 
+   call simpleCommand command, "command-archive/start-workflow"
    task = 'restartWorkflow' ; call display_end task
 
 return
@@ -472,6 +490,7 @@ help:
    say '  start2          Start SSM managed resource2'
    say '  stop            Stop SSM managed resources'
    say '  stop1           Stop SSM managed resource1'
+   say '  upload          Upload PTF'
    say '  stop2           Stop SSM managed resource2'
    say ''
    task = 'help' ; call display_end task
